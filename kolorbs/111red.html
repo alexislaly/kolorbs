@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>111 - Red</title>
+    <meta name="author" content="Alexis Laly">
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-event-set-component@3.0.3/dist/aframe-event-set-component.min.js"> // interaction </script>
+    <script src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.2/dist/nipplejs.min.js"> // smartphone </script>
+
+    <!-- Configuration -->
+    
+    <script> 
+        const CONFIG = {
+          
+            // LEVEL
+            level: 'Level 1-1-1',
+            levelName: 'Red',
+            debug: false, // diplay debug? 
+            
+            // COULEURS
+            couleurNeon: '#ff0000',
+            couleurGrille: '#ff0000',
+            couleurButton: '#ff0000',
+
+            // LIGHTS
+            FlashlightAOnOff: true, // on or off at the beginning
+            FlashlightBOnOff: false, // on or off at the beginning
+            FlashlightASwitch: '', // ability to witch target light// ['flashlightLightA', 'flashlightLightAcone'] or ''
+            FlashlightBSwitch: ['flashlightLightB', 'flashlightLightBcone'], // ability to switch dock light // ['flashlightLightB', 'flashlightLightBcone'] or ''
+            couleurFlashlightA: '#ffffff',
+            couleurLumiereFlashlightA: '#ffffff',
+            couleurFlashlightB: '#ffffff',
+            couleurLumiereFlashlightB: '#ffffff',
+
+            // INTENSITÉS
+            intensiteNeon: 2,
+            intensiteEmissionFlashlight: 2,
+            intensiteLumiereFlashlight: 2,
+
+            // CONDITIONS DE RÉUSSITE
+            // ----------------------         
+            win_sphereInDockColor: '#ff0000',
+            win_TargetColor: '#ff0000', 
+            win_TargetLightColor: '#ffffff',    
+            win_TargetLightVisible: true,
+            win_DockLightColor: '#ffffff',      
+            win_DockLightVisible: true,
+        };
+    </script>
+
+     <style>
+        #textOnScreen {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffffff;
+            font-family: Arial;
+            font-size: 15px;
+            line-height: 1.5;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.75);
+            padding: 12px 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            z-index: 9999;
+            min-width: 300px;
+        }
+        #oldlevelWinMessageScreen {
+            display: none;
+            position: fixed;
+            top: 15%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff00;
+            font-family: Arial;
+            font-size: 50px;
+            font-weight: bold;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px 50px;
+            border: 3px solid #00ff00;
+            border-radius: 20px;
+            z-index: 10000;
+        }
+        
+        #levelWinMessageScreen {
+            position: fixed;
+            /* Couvre absolument tout l'écran */
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none;
+            /* Très important : l'overlay est au-dessus de la scène */
+            z-index: 999999;
+            background: rgba(0, 0, 0, 0.07);
+            color: white;
+            /* Organisation gauche / centre / droite */
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8vw;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+            /* Empêche les clics de passer vers la scène */
+            pointer-events: auto;
+        }
+
+        .win-side {
+            width: 25vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .win-side-text {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+        }
+        .win-center {
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .win-side button {
+            font-size: 1.2rem;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: white;
+            color: black;
+        }
+        .win-side button:hover {
+            background: #dddddd;
+        }
+    </style>
+  </head>
+  
+  <body>
+    <a-scene id='scene'>
+  
+        <!-- ÉLÉMENTS SPÉCIFIQUES AU NIVEAU -->
+      
+        <!-- Si le niveau debute avec une sphere en main, l'ajouter plus bas en js -->
+        <!-- Si le niveau debute avec une sphere dans le dock, l'ajouter plus bas en js -->
+        <!-- Dans les deux cas les spheres doivent etre enfants de la cam ou du dock -->
+        
+        
+        <!-- Ceiling Lights -->
+        <a-entity id="FlashLightEntityL"
+                  position="-5 4.7 -5" rotation="-90 0 0">
+            <a-gltf-model id="flashlightL"
+                          class="clickable" src="#flashlight_model" scale="60 60 60"
+                          rotation="-90 0 0" color="#ffffff" material="shader: flat"
+                          switch="lightFromFlashLightL coneL">
+            </a-gltf-model>
+            <a-light id="lightFromFlashLightL"
+                     type="spot" color="#ffffff" intensity="10" distance="15"
+                     angle="30" penumbra="0.2" decay="1" visible="false">
+            </a-light>
+            <a-cone id="coneL"
+                    material="opacity: 0.035; shader: flat; side: double; transparent: true; depthWrite: false"
+                    rotation="90 0 0" position="0 0 -2.85337" scale="2.5 4.9 2.5" visible="false">
+            </a-cone>
+        </a-entity>
+        <a-entity id="FlashLightEntityR"
+                  position="5 4.7 -5"
+                  rotation="-90 0 0">
+            <a-gltf-model id="flashlightR"
+                          class="clickable" src="#flashlight_model" scale="60 60 60" rotation="-90 0 0"
+                          color="#ffffff" material="shader: flat" switch="lightFromFlashLightR coneR">
+            </a-gltf-model>
+            <a-light id="lightFromFlashLightR"
+                     type="spot" color="#ffffff" intensity="10"
+                     distance="15" angle="30" penumbra="0.2" decay="1">
+            </a-light>
+            <a-cone id="coneR"
+                    material="   opacity: 0.035; shader: flat; side: double; transparent: true; depthWrite: false"
+                    rotation="90 0 0" position="0 0 -2.85337" scale="2.5 4.9 2.5">
+            </a-cone>
+        </a-entity>
+        <a-entity id="FlashLightEntityC"
+                  position="0 4.7 0" rotation="-90 0 0">
+            <a-gltf-model id="flashlightC"
+                          class="clickable" src="#flashlight_model" scale="60 60 60" rotation="-90 0 0" 
+                          color="#ffffff" material="shader: flat" switch="lightFromFlashLightC coneC">
+            </a-gltf-model>
+            <a-light id="lightFromFlashLightC"
+                     type="spot" color="#ffffff" intensity="10"
+                      distance="15" angle="30" penumbra="0.2" decay="1">
+            </a-light>
+            <a-cone id="coneC"
+                    material="opacity: 0.035; shader: flat; side: double; transparent: true; depthWrite: false "
+                    rotation="90 0 0" position="0 0 -2.85337" scale="2.5 4.9 2.5">
+            </a-cone>
+        </a-entity>
+
+        <!-- Red sphere on the left -->
+        <a-sphere id="redSphere_grab"
+            radius="0.20" position="-5 0.2 -5" color="#ff0000" class="clickable">
+        </a-sphere>
+
+        <!-- Second black dock on the right -->
+        <a-torus id="torusR_socket_empty"
+                 position="5 0.077 -5"  rotation="-90 0 0" class="clickable" color="#000000" geometry="radius: 0.28; radiusTubular: 0.07" 
+        ></a-torus>
+        
+        <!-- First person white sphere -->
+        <!-- created later in js -->
+    </a-scene>
+    
+    
+    <!-- JS SCRIPTS -->
+    <!-- ========== -->
+
+    <!-- Creation of the base room form confiuration parameters -->
+    <script src="js/template.js?v9"></script>
+    
+    <!-- Creation of the first person sphere when level begins  -->
+    <script>
+      const sphere = document.createElement('a-sphere');
+      sphere.setAttribute('id', 'whiteSphere_grab_cam');
+      sphere.setAttribute('radius', '0.1');
+      sphere.setAttribute('position', '0.14 -0.185 -0.35');
+      sphere.setAttribute('color', '#ffffff');
+      sphere.setAttribute('visible', 'true');
+      sphere.setAttribute('class', 'clickable');
+      
+      document.querySelector('#cam').appendChild(sphere);
+    </script>
+    
+    <!-- Creation of the spheres in a dock when level begins  -->
+    <script>
+      const sphere = document.createElement('a-sphere');
+      sphere.setAttribute('id', 'whiteSphere_grab_cam');
+      sphere.setAttribute('radius', '0.1');
+      sphere.setAttribute('position', '0.14 -0.185 -0.35');
+      sphere.setAttribute('color', '#ffffff');
+      sphere.setAttribute('visible', 'true');
+      sphere.setAttribute('class', 'clickable');
+      
+     // document.querySelector('#dockid').appendChild(sphere);
+    </script>
+  
+    <!-- Configuration of ceiling flashlights -->
+    <!-- Enable the gltf models to have a color using the configureFlashlight function in scene.js -->
+    <script>
+        configureFlashlight(flashlightL, '#ffffff');
+        configureFlashlight(flashlightR, '#ffffff');
+        configureFlashlight(flashlightC, '#ffffff');
+    </script>
+
+    <!-- Victory message -->
+    <div id="oldlevelWinMessageScreen">
+         Level cleared!
+    </div>
+    <!-- Level name and debug text on screen -->
+    <div id="textOnScreen">
+        <span id="level"></span>
+        <br>
+        <span id="levelName"></span>
+    
+        <!-- Debug uniquement, appear if debug = true (l:19) -->
+        <div id="debugInfo">
+            <hr>
+            <div>
+                Sphere in Dock:
+                <span id="debugSphereColor">---</span>
+            </div>
+            <div>
+                Target:
+                <span id="debugTargetColor">---</span>
+            </div>
+            <div>
+                Target Light:
+                <span id="debugTargetLightColor">---</span>
+            </div>
+            <div>
+                Dock Light:
+                <span id="debugDockLightColor">---</span>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div id="levelWinMessageScreen">
+
+    <div class="win-side">
+        <div class="win-side-text">
+            Liked it?
+        </div>
+
+        <button id="restartLevelButton">
+            RESTART
+        </button>
+    </div>
+
+
+    <div class="win-center">
+        LEVEL CLEARED
+    </div>
+
+
+    <div class="win-side">
+        <div class="win-side-text">
+            Continue to the next level
+        </div>
+
+        <button id="nextLevelButton">
+            NEXT LEVEL
+        </button>
+    </div>
+
+</div>
+    
+    <!-- Level name on screen -->
+    <script>
+        document.getElementById('level').textContent =
+            CONFIG.level;
+        document.getElementById('levelName').textContent =
+            CONFIG.levelName;
+        document.getElementById('debugInfo').style.display =
+            CONFIG.debug ? 'block' : 'none';
+
+    </script>
+
+
+    <!-- Win test -->
+    <!-- From win conditions in configuration -->
+    <script>
+        function checkLevelWin() {
+        
+            // GET CURRENT VALUES
+            // Sphere in the dock
+            const dock = document.querySelector('[id*="dock"]');
+            const sphereInDock = dock?.firstElementChild;
+            const test_sphereInDockColor =sphereInDock?.getAttribute('color') ?? '---';
+        
+            // Target
+            const target = document.querySelector('#button');
+            const test_TargetColor = target?.getAttribute('color');
+        
+        
+            // Target Light
+            const targetLight = document.querySelector('#flashlightLightA');
+            const test_TargetLightColor = targetLight?.getAttribute('color');
+            const test_TargetLightVisible = targetLight?.getAttribute('visible');
+        
+            // Dock Light
+            const dockLight = document.querySelector('#flashlightLightB');
+            const test_DockLightColor = dockLight?.getAttribute('color');
+            const test_DockLightVisible =  dockLight?.getAttribute('visible');
+        
+            // DEBUG
+            document.querySelector('#debugSphereColor').textContent =  test_sphereInDockColor;
+            document.querySelector('#debugTargetColor').textContent =  test_TargetColor;
+            document.querySelector('#debugTargetLightColor').textContent =  test_TargetLightColor;
+            document.querySelector('#debugDockLightColor').textContent =  test_DockLightColor;
+        
+            // WIN TEST
+            const firstWinCondition =
+                test_sphereInDockColor === CONFIG.win_sphereInDockColor
+                && test_TargetColor === CONFIG.win_TargetColor
+                && test_TargetLightColor === CONFIG.win_TargetLightColor
+                && test_DockLightColor === CONFIG.win_DockLightColor
+                && test_DockLightVisible === CONFIG.win_DockLightVisible
+                && test_TargetLightVisible === CONFIG.win_TargetLightVisible;
+        
+            const secondWinCondition =
+                test_TargetLightVisible === false
+                && test_DockLightVisible === false
+                && dock?.children.length > 0;
+        
+            // LEVEL CLEARED
+            if (firstWinCondition || secondWinCondition) {
+                const winMessage =
+                    document.querySelector('#levelWinMessageScreen');
+                // Affiche l'écran de victoire
+                winMessage.style.display = 'flex';
+                return true;t
+            }
+            return false;
+        }
+        
+        // RESTART BUTTON
+        document
+            .querySelector('#restartLevelButton')
+            .addEventListener('click', function () {
+                location.reload();
+            });
+        document
+            .querySelector('#nextLevelButton')
+            .addEventListener('click', function () {
+                window.location.href = 'https://a-laly.neocities.org/kolorbs/112green.html';
+            });
+        
+        // CHECK VICTORY EVERY 100 ms
+        setInterval(checkLevelWin, 100);
+    </script>
+    
+           
+    <!-- Grab and socket function -->
+    <!-- Enable the objects to be grabbed, swapped an placed in sockets-->
+    <script src= 'js/grab_and_socket.js?v4'></script>
+    
+    <!-- Smartphone? -->
+
+
+  </body>
+</html>
