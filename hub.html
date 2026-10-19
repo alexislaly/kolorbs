@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>Kolorbs demo</title>
 
-    <meta name="description" content="A-Frame example.">
+    <meta name="description" content="Kolorbs demo">
     <meta name="author" content="Alexis Laly">
 
     <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
@@ -617,7 +617,8 @@ function configureFlashlight( flashlight, couleur) {
             if (door1_1) {
                 door1_1.setAttribute('color', '#FF0000');
                 door1_1.addEventListener('click', function () {
-                window.location.href = 'https://alexislaly.github.io/kolorbs/111red.html';
+                    sessionStorage.setItem('accesDepuisDoor1_1', 'true');
+                    window.location.href = 'https://alexislaly.github.io/kolorbs/111red.html';
                                                               });
                 hd0_1.setAttribute('visible', 'true');
             }
