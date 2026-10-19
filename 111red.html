@@ -150,6 +150,9 @@
         <!-- Si le niveau debute avec une sphere dans le dock, l'ajouter plus bas en js -->
         <!-- Dans les deux cas les spheres doivent etre enfants de la cam ou du dock -->
         
+        <a-assets>
+            <img id="hd1_img" src="kolorbs_models/hd1.png">
+        </a-assets>
         
         <!-- Ceiling Lights -->
         <a-entity id="FlashLightEntityL"
@@ -212,6 +215,26 @@
         
         <!-- First person white sphere -->
         <!-- created later in js -->
+
+        <a-box id="door1_1"
+            height="4"
+            depth="0.5"
+            class=""
+            width="4"
+            position="0 2 -9.75"
+            material="color: red; shader: flat; opacity:0"
+            rotation="0 0 0"
+            visible="true">
+        </a-box>
+        <a-plane
+            id="hd0_1"
+            material="src: #hd1_img; alphaTest: 0.01; shader: flat; opacity:0"
+            position="0 2 -9.45"
+            scale="3 3 1"
+            rotation="0 0 0"
+            visible="true">
+        </a-plane>
+
     </a-scene>
     
     
@@ -219,7 +242,7 @@
     <!-- ========== -->
 
     <!-- Creation of the base room form confiuration parameters -->
-    <script src="js/template.js?v9"></script>
+    <script src="js/template.js"></script>
     
     <!-- Creation of the first person sphere when level begins  -->
     <script>
@@ -236,13 +259,13 @@
     
     <!-- Creation of the spheres in a dock when level begins  -->
     <script>
-      const sphere = document.createElement('a-sphere');
-      sphere.setAttribute('id', 'whiteSphere_grab_cam');
-      sphere.setAttribute('radius', '0.1');
-      sphere.setAttribute('position', '0.14 -0.185 -0.35');
-      sphere.setAttribute('color', '#ffffff');
-      sphere.setAttribute('visible', 'true');
-      sphere.setAttribute('class', 'clickable');
+      const sphere2 = document.createElement('a-sphere');
+      sphere2.setAttribute('id', 'whiteSphere_grab_cam');
+      sphere2.setAttribute('radius', '0.1');
+      sphere2.setAttribute('position', '0.14 -0.185 -0.35');
+      sphere2.setAttribute('color', '#ffffff');
+      sphere2.setAttribute('visible', 'true');
+      sphere2.setAttribute('class', 'clickable');
       
      // document.querySelector('#dockid').appendChild(sphere);
     </script>
@@ -378,14 +401,35 @@
         
             // LEVEL CLEARED
             if (firstWinCondition || secondWinCondition) {
-                const winMessage =
-                    document.querySelector('#levelWinMessageScreen');
+                // const winMessage = document.querySelector('#levelWinMessageScreen');
                 // Affiche l'écran de victoire
-                winMessage.style.display = 'flex';
-                return true;t
-            }
-            return false;
-        }
+                // winMessage.style.display = 'flex';
+
+                // Retire la classe "clickable" de tous les objets
+                document.querySelectorAll('.clickable').forEach(obj => {
+                    obj.classList.remove('clickable');
+                });  
+
+                // La porte apparait et devient clickalbe
+                const door = document.querySelector('#door1_1');
+                door.setAttribute('animation__appear', {
+                    property: 'material.opacity', to: '1', dur: 2000, easing: 'easeInOutQuad'
+                    });
+                door.setAttribute('class','clickable');
+                door.addEventListener('click', function () {
+                window.location.href = 'https://alexislaly.github.io/kolorbs/112green.html';
+                    });
+
+                const hd0_1 = document.querySelector('#hd0_1');
+                hd0_1.setAttribute('animation__appear2', {
+                    property: 'material.opacity', to: '1', dur: 2000, easing: 'easeInOutQuad'
+                    });                
+                
+                    
+                        return true;
+                    }
+                    return false;
+                }
         
         // RESTART BUTTON
         document
@@ -396,7 +440,7 @@
         document
             .querySelector('#nextLevelButton')
             .addEventListener('click', function () {
-                window.location.href = 'https://alexislaly.github.io/kolorbs/112green.html';
+                window.location.href = 'https://a-laly.neocities.org/kolorbs/112green.html';
             });
         
         // CHECK VICTORY EVERY 100 ms
@@ -406,9 +450,22 @@
            
     <!-- Grab and socket function -->
     <!-- Enable the objects to be grabbed, swapped an placed in sockets-->
-    <script src= 'js/grab_and_socket.js?v4'></script>
+    <script src= 'js/grab_and_socket.js'></script>
     
     <!-- Smartphone? -->
+
+    <!-- Change sth if origin = hub -->
+    <script>
+    if (sessionStorage.getItem('accesDepuisDoor1_1') === 'true') {
+
+        sessionStorage.removeItem('accesDepuisDoor1_1');// Supprime immédiatement l'information
+
+
+        // Exemple :
+         const exemple = document.querySelector('#FlashLightEntityC')
+            exemple.setAttribute('visible', 'false');
+    }
+    </script>
 
 
   </body>
