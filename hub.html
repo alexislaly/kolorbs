@@ -61,6 +61,8 @@
     </a-asset-item>
     
     <img id="hd0_img" src="kolorbs_models/hd0.png">
+    <img id="hd3_img" src="kolorbs_models/hd3.png">
+
   </a-assets>
 
     <!-- HEPTAGONAL FLOOR-->
@@ -617,7 +619,7 @@ function configureFlashlight( flashlight, couleur) {
             if (door1_1) {
                 door1_1.setAttribute('color', '#FF0000');
                 door1_1.addEventListener('click', function () {
-                    sessionStorage.setItem('accesDepuisDoor1_1', 'true');
+                    sessionStorage.setItem('source_hub_Door1_1', 'true');
                     window.location.href = 'https://alexislaly.github.io/kolorbs/111red.html';
                                                               });
                 hd0_1.setAttribute('visible', 'true');
@@ -630,10 +632,18 @@ function configureFlashlight( flashlight, couleur) {
     }
     
     // CHECK VICTORY EVERY 100 ms
-    setInterval(checkLevelWin, 100);
-        
+    setInterval(checkLevelWin, 100);    
     </script>
 
+    <!-- Change something if the origin is something specific -->
+    <script>
+    if (sessionStorage.getItem('source_113blue') === 'true') {
+        sessionStorage.removeItem('source_113blue');// Supprime immédiatement l'information
+        // Exemple :
+        const hd = document.querySelector('#hd0_1')
+        hd.setAttribute('material', `src: #hd3_img`);
+    }
+    </script>
 
 
 
