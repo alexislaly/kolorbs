@@ -652,5 +652,82 @@ function configureFlashlight( flashlight, couleur) {
 <!-- Needs scene and camera to have IDs 'scene' and 'cam'-->
 <script src= 'js/grab_and_socket.js'></script>
 
+    
+<script>
+(function () {
+    const STORAGE_KEY = 'hubSceneState';
+
+    function saveHubState() {
+        const scene = document.querySelector('#scene');
+        if (!scene) return;
+
+        const state = {};
+
+        scene.querySelectorAll('[id]').forEach(el => {
+            // Sauvegarder les composants A-Frame de chaque entité.
+            const components = {};
+
+            for (const name of Object.keys(el.components || {})) {
+                // Exclure les composants techniques ou animés en continu.
+                if (name === 'animation' || name.startsWith('animation__')) {
+                    continue;
+                }
+
+                try {
+                    components[name] = el.getAttribute(name);
+                } catch (e) {
+                    // Ignorer les composants non sérialisables.
+                }
+            }
+
+            if (Object.keys(components).length > 0) {
+                state[el.id] = components;
+            }
+        });
+
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function restoreHubState() {
+        const saved = sessionStorage.getItem(STORAGE_KEY);
+        if (!saved) return;
+
+        const state = JSON.parse(saved);
+
+        // Restaurer d'abord les attributs des entités existantes.
+        for (const [id, components] of Object.entries(state)) {
+            const el = document.getElementById(id);
+            if (!el) continue;
+
+            for (const [name, value] of Object.entries(components)) {
+                if (value === null || value === undefined) continue;
+
+                try {
+                    el.setAttribute(name, value);
+                } catch (e) {
+                    console.warn('Restauration impossible :', id, name);
+                }
+            }
+        }
+    }
+
+    // Sauvegarde automatique avant de quitter la page.
+    window.addEventListener('pagehide', saveHubState);
+
+    // Restaurer lorsque la scène A-Frame est initialisée.
+    const scene = document.querySelector('#scene');
+
+    if (scene) {
+        if (scene.hasLoaded) {
+            restoreHubState();
+        } else {
+            scene.addEventListener('loaded', restoreHubState, {
+                once: true
+            });
+        }
+    }
+})();
+</script>
+    
 </body>
 </html>
