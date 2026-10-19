@@ -150,7 +150,11 @@
         <!-- Si le niveau debute avec une sphere dans le dock, l'ajouter plus bas en js -->
         <!-- Dans les deux cas les spheres doivent etre enfants de la cam ou du dock -->
         
-        
+        <a-assets>
+            <img id="hd3_img" src="kolorbs_models/hd3.png">
+        </a-assets>
+
+
         <!-- Ceiling Lights -->
         <a-entity id="FlashLightEntityL"
                   position="-5 4.7 -5" rotation="-90 0 0">
@@ -232,6 +236,25 @@
         
         <!-- First person white sphere -->
         <!-- created later in js -->
+
+        <a-box id="door1_1"
+            height="4"
+            depth="0.5"
+            class="clickable"
+            width="4"
+            position="0 2 -9.75"
+            material="color: red; shader: flat; opacity:0"
+            rotation="0 0 0"
+            visible="true">
+        </a-box>
+        <a-plane
+            id="hd0_3"
+            material="src: #hd3_img; alphaTest: 0.01; shader: flat; opacity:0"
+            position="0 2 -9.45"
+            scale="3 3 1"
+            rotation="0 0 0"
+            visible="true">
+        </a-plane>
     </a-scene>
     
     
@@ -411,14 +434,35 @@
                 && test_DockLightVisible === false
                 && dock?.children.length > 0;
         
+            
             // LEVEL CLEARED
             if (firstWinCondition || secondWinCondition) {
-                const winMessage =
-                    document.querySelector('#levelWinMessageScreen');
+                // const winMessage = document.querySelector('#levelWinMessageScreen');
                 // Affiche l'écran de victoire
-                winMessage.style.display = 'flex';
-                return true;
-            }
+                // winMessage.style.display = 'flex';
+
+                // Retire la classe "clickable" de tous les objets
+                document.querySelectorAll('.clickable').forEach(obj => {
+                    obj.classList.remove('clickable');
+                });  
+
+                // La porte apparait et devient clickalbe
+                const door = document.querySelector('#door1_1');
+                door.setAttribute('animation__appear', {
+                    property: 'material.opacity', to: '1', dur: 2000, easing: 'easeInOutQuad'
+                    });
+                door.setAttribute('class','clickable');
+                door.addEventListener('click', function () {
+                    sessionStorage.setItem('source_113blue', 'true');
+                    window.location.href = 'https://alexislaly.github.io/kolorbs/112green.html';
+                    });
+
+                const hd0_3 = document.querySelector('#hd0_3');
+                hd0_3.setAttribute('animation__appear2', {
+                    property: 'material.opacity', to: '1', dur: 2000, easing: 'easeInOutQuad'
+                    });         
+                        return true;
+                    }
             return false;
         }
         
@@ -431,7 +475,7 @@
         document
             .querySelector('#nextLevelButton')
             .addEventListener('click', function () {
-                window.location.href = 'https://alexislaly.github.io/kolorbs/hub.html';
+                window.location.href = 'https://a-laly.neocities.org/kolorbs/hub.html';
             });
         
         // CHECK VICTORY EVERY 100 ms
