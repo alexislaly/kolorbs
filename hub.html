@@ -734,12 +734,13 @@ function configureFlashlight( flashlight, couleur) {
         const dock = document.querySelector('#torusR_socket_redSphere')
         const lockdock = document.querySelector('#dock_socket_empty')
 
-        const newSphere = sphere.cloneNode(true); // Crée une copie complète de l'objet
-        sphere.parentNode.removeChild(object); // Supprime l'ancien objet
-        lockdock.appendChild(newSphere); // Ajoute le nouvel objet comme enfant de la caméra
-        newSphere.setAttribute('id', 'redSphere'); // Change l'id
-        dock.setAttribute('id', 'torusR_socket_empty'); // Change l'id
-        lockdock.setAttribute('id', 'dock_socket_redSphere'); // Change l'id
+        const newSphere = sphere.cloneNode(true); // Créer une copie de la sphère
+        sphere.remove(); // Supprimer la sphère d'origine
+        lockdock.appendChild(newSphere); // Insérer la copie dans le dock du verrou
+        // Modifier les identifiants
+        newSphere.setAttribute('id', 'redSphere');
+        dock.setAttribute('id', 'torusR_socket_empty');
+        lockdock.setAttribute('id', 'dock_socket_redSphere');
 
         // change the position of the camera 
     }
