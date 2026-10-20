@@ -639,9 +639,23 @@ function configureFlashlight( flashlight, couleur) {
     <script>
     if (sessionStorage.getItem('source_113blue') === 'true') {
         sessionStorage.removeItem('source_113blue');// Supprime immédiatement l'information
-        // Exemple :
-        const hd = document.querySelector('#hd0_1')
-        hd.setAttribute('material', `src: #hd3_img`);
+        
+        const hd_1 = document.querySelector('#hd0_1')
+        hd_1.setAttribute('material', `src: #hd3_img`);
+
+        // move red sphere from torusR_socket_redSphere to torusR_socket_redSphere and change there name 
+        const sphere = document.querySelector('#redSphere_grab')
+        const dock = document.querySelector('#torusR_socket_redSphere')
+        const lockdock = document.querySelector('#dock_socket_empty')
+
+        const newSphere = sphere.cloneNode(true); // Crée une copie complète de l'objet
+        sphere.parentNode.removeChild(object); // Supprime l'ancien objet
+        lockdock.appendChild(newSphere); // Ajoute le nouvel objet comme enfant de la caméra
+        newSphere.setAttribute('id', 'redSphere'); // Change l'id
+        dock.setAttribute('id', 'torusR_socket_empty'); // Change l'id
+        lockdock.setAttribute('id', 'dock_socket_redSphere'); // Change l'id
+
+        // change the position of the camera 
     }
     </script>
 
